@@ -5,7 +5,7 @@
 \title{Find nearest species compositional neighbors among two
     datasets}
 \usage{
-nearestspecies(spe1, spe2, method, uniq = FALSE, ...)
+nearestspecies(spe1, spe2, method, ties = FALSE, ...)
 }
 \arguments{
 \item{spe1}{species abundance matrix with greater number of sites
@@ -18,13 +18,15 @@ nearestspecies(spe1, spe2, method, uniq = FALSE, ...)
 \code{\link[vegan]{vegdist}}; default uses Bray-Curtis
 dissimilarities with stepacross adjustment}
 
-\item{uniq}{logical, force unique values? (currently unimplemented)}
+\item{ties}{logical, should ties (non-unique values) be allowed?
+default is \code{FALSE}}
 
 \item{...}{additional arguments passed to function}
 }
 \value{
-Numeric vector indexing sites in \code{spe1} which are nearest
-    compositional neighbors of \code{spe2}.
+Numeric vector indexing rows (sample units) in \code{spe1} which
+    are nearest compositional neighbors of \code{spe2}. The order
+    corresponds to row order in \code{spe2}.
 }
 \description{
 Given two species abundance matrices (of possibly
@@ -34,18 +36,25 @@ Given two species abundance matrices (of possibly
 Useful to subset the longer of two datasets for analyses that
     require compatible dimensions (e.g.,
     \code{\link[vegan]{mantel}}, \code{\link[vegan]{procrustes}}).
-    Currently, any sample unit in \code{spe1} may be picked
-    repeatedly (unique values not enforced).
+
+    If \code{ties = FALSE}, then all returned values are unique;
+    if \code{ties = TRUE}, then unique values are not enforced, so
+    any sample unit in \code{spe1} may be picked repeatedly.
 }
 \examples{
 # two candidate datasets, full and partial
+set.seed(181)
 data(smoky)
 full <- smoky$spe
-part <- full[3:9,]
+part <- (full + abs(rnorm(prod(dim(full)), 0, 25)))[1:6,]
 
 # subset the full matrix, based on compositional nearest neighbors
-keep <- nearestspecies(full, part)
-keep
-full <- full[keep,,]
+i <- nearestspecies(full, part, ties=FALSE)
+i
+full <- full[i,,]
+
+# default is to break ties
+nearestspecies(full, part, ties=FALSE)
+nearestspecies(full, part, ties=TRUE)
 
 }
