@@ -42,9 +42,9 @@ plot_boot_spider(res, col='#00000040')
 
 ### Reciprocal NMDS of both datasets
 ```r
-r <- recip_nmds(tw)
-summary(r)
-plot(r)
+res <- recip_nmds(tw)
+summary(res)
+plot(res)
 ```
 
 
