@@ -42,11 +42,11 @@
 #' x   <- list(spe=smoky$spe, id=smoky$env[,1:4])
 #' res <- boot_nmds(x, B=29, k=2, rot=TRUE)
 #' summary(res)
-#' plot_boot_spider(res, col='#00000040')
+#' plot(res, col='#00000040')
 #'
 #' # alternative plotting:
 #' rn  <- gsub('\\.[[:alnum:]]+$', '', row.names(res$bootpt))
-#' plot_boot_spider(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
+#' plot(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
 #'
 #' @references
 #' Kruskal, J. B. 1964. Multidimensional scaling by optimizing
@@ -116,7 +116,7 @@
 }
 
 # ### plot method for bootstrapped rP or Stress statistic
-# `plot.boot_nmds` <- function(b_ref, b_trg, type=NULL, leg=FALSE, ...){
+# `plot_boot_rP` <- function(b_ref, b_trg, type=NULL, leg=FALSE, ...){
 #      type <- match.arg(type, c('rP', 'stress'))
 #      if(type == 'stress') {
 #           x     <- b_ref[[2]]
@@ -154,8 +154,9 @@
 #' @export
 #' @rdname boot_nmds
 ### plot bootstraps as a spider around each centroid
-`plot_boot_spider` <- function(object, noaxes=F,
-                               col=rgb(0,0,0,10,max=255), ...) {
+###     (formerly `plot_boot_spider`)
+`plot.boot_nmds` <- function(object, noaxes=F,
+                             col=rgb(0,0,0,10,max=255), ...) {
      r     <- object$bootpt
      # sloppily handle punctuation in rownames:
      rn    <- row.names(r)
@@ -195,7 +196,8 @@
      # rotate to similarity with an environmental gradient?
      if(rot){
           envscr  <- vegan::wcmdscale(vegan::vegdist(id,'euc'), eig=T)
-          envscr  <- envscr$points[,1:k]
+          kmin    <- min(k, dim(envscr$points)[[2]])
+          envscr  <- envscr$points[,1:kmin]
           scr     <- vegan::protest(envscr, scr, symm=T, perm=0)$Yrot
      }
      # species ranks:

@@ -3,14 +3,15 @@
 \name{boot_nmds}
 \alias{boot_nmds}
 \alias{summary.boot_nmds}
-\alias{plot_boot_spider}
+\alias{plot.boot_nmds}
 \title{Bootstrap NMDS}
 \usage{
 boot_nmds(x, B = 9, BS, k = 2, rot = TRUE, ...)
 
 \method{summary}{boot_nmds}(object, ...)
 
-plot_boot_spider(object, noaxes = F, col = rgb(0, 0, 0, 10, max = 255), ...)
+\method{plot}{boot_nmds}(object, noaxes = F, col = rgb(0, 0, 0, 10, max =
+  255), ...)
 }
 \arguments{
 \item{x}{list of species and environment matrices}
@@ -56,11 +57,11 @@ data(smoky)
 x   <- list(spe=smoky$spe, id=smoky$env[,1:4])
 res <- boot_nmds(x, B=29, k=2, rot=TRUE)
 summary(res)
-plot_boot_spider(res, col='#00000040')
+plot(res, col='#00000040')
 
 # alternative plotting:
 rn  <- gsub('\\\\.[[:alnum:]]+$', '', row.names(res$bootpt))
-plot_boot_spider(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
+plot(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
 
 }
 \references{
