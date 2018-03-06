@@ -55,14 +55,26 @@ plot(res)
 spe2 <- spe1[1:11,]
 env2 <- env1[1:11,]
 
+<<<<<<< HEAD
 # subset the full matrix, based on compositional nearest neighbors...
+=======
+# subset the full matrix, based on compositional nearest neighbors
+>>>>>>> 60fe352f2f7f7f1d367228b86662ad4f281f9dc3
 (i   <- nearestspecies(spe1, spe2, ties=FALSE))
 spe1 <- spe1[i,,]
 env1 <- env1[i,,]
 
+<<<<<<< HEAD
 # ...then proceed to reciprocal NMDS
+=======
+# then proceed to reciprocal NMDS
+>>>>>>> 60fe352f2f7f7f1d367228b86662ad4f281f9dc3
 tw   <- twin(spe1, spe2, env1, env2)
 res  <- recip_nmds(tw)
 summary(res)
 plot(res)
+<<<<<<< HEAD
+=======
+
+>>>>>>> 60fe352f2f7f7f1d367228b86662ad4f281f9dc3
 ```
