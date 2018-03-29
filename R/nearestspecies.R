@@ -60,7 +60,11 @@
      both <- ecole::mx_rbind_all(spe1, spe2)
      if (missing(method)) {
           D <- vegan::vegdist(both, "bray")
-          D <- vegan::stepacross(D, path = "shortest", toolong = 1)
+          # need capture.output to silence unwanted message printing:
+          dontprint <- capture.output(
+               D <- vegan::stepacross(D, path = "shortest",
+                                      toolong = 1), file=NULL
+          )
      } else {
           D <- vegan::vegdist(both, method = method)
      }
