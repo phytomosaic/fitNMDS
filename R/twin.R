@@ -51,8 +51,8 @@
      d2  <- x[[2]][['spe']]
      id1 <- x[[1]][['id']]
      id2 <- x[[2]][['id']]
-     if(!identical(dimnames(d1)[2], dimnames(d2)[2]))
-          cat('\nspecies not exact match, joining data anyway\n\n')
+     # if(!identical(dimnames(d1)[2], dimnames(d2)[2]))
+     #      cat('\nspecies not exact match, joining data anyway\n\n')
      spe <- ecole::mx_rbind_all(d1, d2)
      id  <- ecole::mx_rbind_all(id1, id2)
      list(spe, id)

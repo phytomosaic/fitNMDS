@@ -1,13 +1,12 @@
 # fitNMDS
-Measures of agreement for bootstrapped and reciprocal NMDS.
+Fitting bootstrapped and reciprocal NMDS models.
 
 
 ## Motivation
 
 Combining two different datasets into one nonmetric multidimensional scaling (NMDS) model can be risky if they each cover different
-attribute spaces (e.g., different species pools in ecology). Therefore, comparing two datasets requires estimating internal agreement
-(sampling variability) relative to external agreement (exchangeability). Bootstrapped NMDS estimates internal agreement of a candidate dataset, while 
-reciprocal NMDS estimates external agreement among two candidate datasets.
+attribute spaces (e.g., different species pools in ecology). Therefore, comparing two datasets requires estimating internal sampling 
+variability (using bootstrapped NMDS) relative to external exchangeability (using reciprocal NMDS).
 
 
 ## Installation
@@ -46,7 +45,7 @@ plot(res, col='#00000040')
 ```r
 res <- recip_nmds(tw)
 summary(res)
-plot(res)
+plot(res, noaxes=FALSE)
 ```
 
 

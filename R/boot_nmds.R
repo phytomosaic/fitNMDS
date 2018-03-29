@@ -1,7 +1,7 @@
 #' @title Bootstrap NMDS
 #'
 #' @description Bootstrap nonmetric multidimensional scaling (NMDS) to
-#'     estimate internal stability.
+#'     estimate internal sampling variability.
 #'
 #' @param x list of species and environment matrices
 #'
@@ -13,7 +13,8 @@
 #' @param k number of dimensions sought in final NMDS solution
 #'
 #' @param rot logical, should solution be rotated to similarity with
-#'    an environmental gradient?
+#'    an environmental gradient? Probably only sensible with known
+#'    synthetic gradients.
 #'
 #' @param object result from \code{boot_nmds}
 #'
@@ -27,13 +28,13 @@
 #' List of class \sQuote{boot_nmds} with elements:
 #'
 #' @details
-#' Bootstrapped NMDS with \code{boot_nmds} estimates internal fit
-#' (stability) of a candidate dataset.  The premise of bootstrapped
+#' Bootstrapped NMDS with \code{boot_nmds} estimates internal sampling
+#' variability of a candidate dataset.  The premise of bootstrapped
 #' ordination is resampling with replacement from the reference
 #' dataset, performing NMDS ordination on each bootstrap replicate,
-#' then determining collective stability across all NMDS solutions.
-#' Other uses of bootstrap NMDS may include estimating confidence
-#' regions for ordination site scores, or testing the stability of
+#' then determining collective sampling variability  across all NMDS
+#' solutions.  Other uses of bootstrap NMDS may include estimating
+#' confidence regions for site scores, or testing the stability of
 #' species positions along ordination axes.
 #'
 #' @examples
@@ -158,13 +159,13 @@
 `plot.boot_nmds` <- function(object, noaxes=F,
                              col=rgb(0,0,0,10,max=255), ...) {
      r     <- object$bootpt
-     # sloppily handle punctuation in rownames:
+     # sloppy hack to handle punctuation in rownames:
      rn    <- row.names(r)
      rn    <- gsub('^[[:punct:]]', '', rn)
      left  <- gsub('\\.[[:alnum:]]+$', '', rn)
      right <- gsub('.*\\.', '', rn)
      if(all(left=='' | left=='.')) { rn <- right }else{ rn <- left }
-     cat('\nmay take a moment to render...\n\n')
+     # cat('\nmay take a moment to render...\n\n')
      if(noaxes){
           vegan::ordiplot(r,type='n',display='sites',
                           bty='n',axes=F,ylab='',xlab='')
@@ -183,7 +184,11 @@
 ### stepacoss zero-adjusted Bray-Curtis dissimilarities
 ###     toolong=1 is fixed (data may be disconnected if <1)
 `step_bray0` <- function(x, ...){
-     vegan::stepacross(ecole::bray0(x), path='shortest', toolong=1)
+     # need capture.output to silence unwanted message printing:
+     capture.output(
+          vegan::stepacross(ecole::bray0(x), path='shortest',
+                            toolong=1)
+     )
 }
 
 ### general function to perform the ordinations

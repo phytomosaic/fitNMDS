@@ -24,15 +24,15 @@
 #' List of class 'recip_nmds' with elements:
 #'
 #' @details
-#' Reciprocal NMDS with \code{recip_nmds} estimates external fit
-#' (exchangeability) of two candidate datasets.  The premise of
+#' Reciprocal NMDS with \code{recip_nmds} estimates external
+#' exchangeability of two candidate datasets.  The premise of
 #' reciprocal NMDS is to calibrate each of two models with each
 #' respective dataset, mutually exchanging datasets among the
-#' alternative ordination models, then determining measures of how
-#' well each dataset fit the alternative model.  This is really just a
-#' special case of 2-fold cross-validation as applied to NMDS.  The
-#' primary use of reciprocal NMDS is to test the null hypothesis that
-#' two multivariate datasets are exchangeable.
+#' alternative ordination models, then determining how well each
+#' dataset fit the alternative model.  This is really just a special
+#' case of 2-fold cross-validation as applied to NMDS.  The primary
+#' use of reciprocal NMDS is to test the null hypothesis that two
+#' multivariate datasets are exchangeable.
 #'
 #' @examples
 #' # prepare two candidate datasets (here we just modify one)
@@ -149,15 +149,15 @@
      if(type=='points'){
           if(noaxes){
                vegan::ordiplot(x$m1,dis='sites',type='n',bty='n',
-                               axes=F,xlab='NMDS1',ylab='NMDS2')
+                               axes=F,xlab='',ylab='')
           }else{
-               vegan::ordiplot(x$m1,dis='sites',type='n',xaxt='none',
-                               yaxt='none',xlab='NMDS1',ylab='NMDS2')
+               vegan::ordiplot(x$m1,dis='sites',type='n',bty='l',
+                               xaxt='none',yaxt='none',
+                               xlab='NMDS1',ylab='NMDS2')
           }
           points(x$m1, col=rgb(0,0,0,0.7), pch=16, cex=0.5)
           arrows(x$m1[,1], x$m1[,2], x$m2[,1], x$m2[,2],
                  col=rgb(0,0,0,0.3), len=0.02, angle=20)
-          # points(x$m2, col=rgb(1,0,0,0.7),  pch=16, cex=0.7)
           if(leg){
                legend('topright', c('m1','m2'), col=c(1,2),
                       border='transparent', pch=c(16,16), bty='o',
@@ -165,14 +165,13 @@
           }
      }
      if(type=='text'){
-          # vegan::ordiplot(x$m1,dis='sites',type='n',xaxt='none',
-          #                 yaxt='none',xlab='NMDS1',ylab='NMDS2')
           if(noaxes){
                vegan::ordiplot(x$m1,dis='sites',type='n',bty='n',
-                               axes=F,xlab='NMDS1',ylab='NMDS2')
+                               axes=F,xlab='',ylab='')
           }else{
-               vegan::ordiplot(x$m1,dis='sites',type='n',xaxt='none',
-                               yaxt='none',xlab='NMDS1',ylab='NMDS2')
+               vegan::ordiplot(x$m1,dis='sites',type='n',bty='l',
+                               xaxt='none',yaxt='none',
+                               xlab='NMDS1',ylab='NMDS2')
           }
           text(x$m1, lab=row.names(x$m1), cex=0.7)
           segments(x$m1[,1],x$m1[,2],x$m2[,1],x$m2[,2],col=17)
@@ -184,15 +183,12 @@
           }
      }
      if(type=='twinned'){
-          op <- par(no.readonly=TRUE)
-          on.exit(par(op))
-          par(mfrow=c(1,2), oma=rep(0,4)+.1, mar=c(2,2,2,0)+.1)
+          op <- par(mfrow=c(1,2), oma=rep(0,4)+.1, mar=c(2,2,2,0)+.1)
           vegan::ordiplot(x$m1,dis='sites',type='t',xlab='NMDS1',
                           ylab='NMDS2',main='Model 1: D1+D2')
           vegan::ordiplot(x$m2,dis='sites', type='t',xlab='NMDS1',
                           ylab='NMDS2',main='Model 2: D1+D2')
-          # par(mfrow=c(1,1), oma=rep(0,4)+.1, mar=c(2,2,2,0)+.1)
-          # par(op)
+          par(op)
      }
 }
 

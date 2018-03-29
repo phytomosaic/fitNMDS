@@ -14,10 +14,11 @@
 #' \item \code{env} 12 observations of 7 nvironmental variables
 #' }
 #' @details Species matrix values are abundance of tree species in 12
-#'     stations, (percentages of total woody plant stems per station
-#'     > or = 1-inch diameter). Each station is an aggregate of 1-7
-#'     plots of variable size and sampling intensity. Presences < 0.5%
-#'     are coded as 0.1 in the present matrix.\cr
+#'     stations between 3500 and 4500 ft. Abundances are percentages
+#'     of total woody plant stems per station > or = 1-inch diameter).
+#'     Each station is an aggregate of 1-7 plots of variable size and
+#'     sampling intensity. Presences < 0.5% are coded as 0.1 in this
+#'     matrix.\cr
 #'
 #'     Environmental matrix values are:\cr
 #'     \itemize{
@@ -59,13 +60,10 @@
 #' env <- smoky$env
 #'
 #' # visualize the species matrix
-#' op <- par(mfrow=c(1,1), mar=c(0,2,10,0), oma=c(0,0,0,0), cex=0.7)
-#' r  <- ecole::colvec(1:99, alpha=1)
-#' cc <- log1p(spe[12:1,])
-#' image((1:ncol(cc)), (1:nrow(cc)), t(cc), col=r, axes=FALSE)
-#' axis(3, at = 1:ncol(cc), labels=colnames(cc), las=3, tick=FALSE)
-#' axis(2, at = 1:nrow(cc), labels=rownames(cc), las=1, tick=FALSE)
-#' par(op)
+#' data(smoky)
+#' z <- smoky$spe
+#' ecole::plot_heatmap(z, xord=FALSE, yord=FALSE, yexp=1.7,
+#'      logbase=10, asp=1)
 #'
 #' # following Whittaker's Fig. 4 (top):
 #' e <- sapply(env[,1:4], FUN=function(x)(x-min(x))/(max(x)-min(x)))

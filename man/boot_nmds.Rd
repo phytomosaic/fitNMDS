@@ -24,7 +24,8 @@ original matrix)}
 \item{k}{number of dimensions sought in final NMDS solution}
 
 \item{rot}{logical, should solution be rotated to similarity with
-an environmental gradient?}
+an environmental gradient? Probably only sensible with known
+synthetic gradients.}
 
 \item{...}{additional arguments passed to function}
 
@@ -39,16 +40,16 @@ List of class \sQuote{boot_nmds} with elements:
 }
 \description{
 Bootstrap nonmetric multidimensional scaling (NMDS) to
-    estimate internal stability.
+    estimate internal sampling variability.
 }
 \details{
-Bootstrapped NMDS with \code{boot_nmds} estimates internal fit
-(stability) of a candidate dataset.  The premise of bootstrapped
+Bootstrapped NMDS with \code{boot_nmds} estimates internal sampling
+variability of a candidate dataset.  The premise of bootstrapped
 ordination is resampling with replacement from the reference
 dataset, performing NMDS ordination on each bootstrap replicate,
-then determining collective stability across all NMDS solutions.
-Other uses of bootstrap NMDS may include estimating confidence
-regions for ordination site scores, or testing the stability of
+then determining collective sampling variability  across all NMDS
+solutions.  Other uses of bootstrap NMDS may include estimating
+confidence regions for site scores, or testing the stability of
 species positions along ordination axes.
 }
 \examples{

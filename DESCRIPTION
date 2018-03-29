@@ -1,8 +1,8 @@
 Package: fitNMDS
 Version: 0.1.0-2018
-Date: 2018-02-23
+Date: 2018-03-29
 Type: Package
-Title: Measures of Agreement for Bootstrapped and Reciprocal NMDS
+Title: Fitting Bootstrapped and Reciprocal NMDS Models
 Author: Robert J. Smith <smithr2@oregonstate.edu>
 Maintainer: Robert J. Smith <smithr2@oregonstate.edu>
 Depends: R (>= 3.4.1)
@@ -14,8 +14,9 @@ Imports:
      ecole, 
      viridis,
      viridisLite
-Description: Bootstrap and reciprocal NMDS to estimate 
-    internal and external agreement of ordination models.
+Description: Bootstrap and reciprocal NMDS to estimate internal 
+     sampling variability and external exchangeability of 
+     ordination models.
 License: CC BY-NC-ND 4.0
 Encoding: UTF-8
 LazyData: true

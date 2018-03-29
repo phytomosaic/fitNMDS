@@ -45,15 +45,15 @@ Reciprocal nonmetric multidimensional scaling (NMDS)
     to estimate external exchangeability of two datasets.
 }
 \details{
-Reciprocal NMDS with \code{recip_nmds} estimates external fit
-(exchangeability) of two candidate datasets.  The premise of
+Reciprocal NMDS with \code{recip_nmds} estimates external
+exchangeability of two candidate datasets.  The premise of
 reciprocal NMDS is to calibrate each of two models with each
 respective dataset, mutually exchanging datasets among the
-alternative ordination models, then determining measures of how
-well each dataset fit the alternative model.  This is really just a
-special case of 2-fold cross-validation as applied to NMDS.  The
-primary use of reciprocal NMDS is to test the null hypothesis that
-two multivariate datasets are exchangeable.
+alternative ordination models, then determining how well each
+dataset fit the alternative model.  This is really just a special
+case of 2-fold cross-validation as applied to NMDS.  The primary
+use of reciprocal NMDS is to test the null hypothesis that two
+multivariate datasets are exchangeable.
 }
 \examples{
 # prepare two candidate datasets (here we just modify one)
