@@ -185,10 +185,12 @@
 ###     toolong=1 is fixed (data may be disconnected if <1)
 `step_bray0` <- function(x, ...){
      # need capture.output to silence unwanted message printing:
-     capture.output(
-          vegan::stepacross(ecole::bray0(x), path='shortest',
-                            toolong=1)
+     dontprint <- capture.output(
+          out <- vegan::stepacross(ecole::bray0(x), path='shortest',
+                                   toolong=1),
+          file=NULL
      )
+     out
 }
 
 ### general function to perform the ordinations
