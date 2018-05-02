@@ -107,7 +107,7 @@
      d1_rP <- vegan::protest(m1[ind1,], m2[ind1,], perm=0, symm=T)$t0
      d2_rP <- vegan::protest(m2[ind2,], m1[ind2,], perm=0, symm=T)$t0
      # COMPLETE intermodel fit: compare each model to the other
-     M1vM2_rP <- pp$t0  # M1 vs M2 fit
+     rP_external <- pp$t0  # M1 vs M2 fit
      # var expl by each configuration = R2 = coef of detn (as PCORD7)
      Ds  <- vegan::vegdist(d3a, 'bray', diag=T, upper=T)
      Dz1 <- dist(m1)
@@ -119,7 +119,7 @@
                  sumtab=round(data.frame(
                       d1_rP   = d1_rP,      # partial intermodel fit
                       d2_rP   = d2_rP,      # partial intermodel fit
-                      M1vM2_rP= M1vM2_rP,   # complete intermodel fit
+                      rP_external= rP_external,   # complete intermodel fit
                       stress1 = stress1,    # stress M1
                       stress2 = stress2,    # stress M2
                       varexp1 = ve1,        # var explained M1
@@ -134,7 +134,7 @@
 ### summary method for reciprocal fit statistics
 `summary.recip_nmds` <- function(object, ...){
      out <- c(t(object[['sumtab']]))
-     names(out) <- c('d1_rP','d2_rP','M1vM2_rP',
+     names(out) <- c('d1_rP','d2_rP','rP_external',
                      'stress1','stress2','varexp1','varexp2')
      out
 }

@@ -99,7 +99,7 @@
      out <- list(rP_draw=rP_draw,
                  stresses=stresses,
                  sumtab=round(data.frame(SRV=SRV,
-                                         rP_median=rP_medn),3),
+                                         rP_internal=rP_medn),3),
                  bootpt=bscr)
      class(out) <- 'boot_nmds'
      difftime <- as.numeric(Sys.time()-time0, units='mins')
@@ -112,7 +112,7 @@
 ### summary method for bootstrapped statistics
 `summary.boot_nmds` <- function(object, ...){
      out <- c(t(object[['sumtab']]))
-     names(out) <- c('SRV','rP_median')
+     names(out) <- c('SRV','rP_internal')
      out
 }
 
