@@ -21,7 +21,35 @@
 #' @param ... additional arguments passed to function
 #'
 #' @return
-#' List of class 'recip_nmds' with elements:
+#' List of class \sQuote{recip_nmds} with elements:\cr
+#'
+#' \describe{
+#'   \item{m1}{reciprocal model 1, calibrated with dataset 1 then
+#'          swapping in dataset 2)
+#'   }
+#'   \item{m2}{reciprocal model 2, calibrated with dataset 2 then
+#'          swapping in dataset 1
+#'   }
+#'   \item{grp}{vector identifying group membership in dataset 1 or 2
+#'   }
+#'   \item{sumtab}{data.frame summary table, with elements:
+#' \describe{
+#'   \item{d1_rP, d2_rP}{\emph{partial} intermodel fit for group 1,
+#'   group 2 data (i.e., how well each dataset fits the opposing
+#'   calibration model)
+#'   }
+#'   \item{rP_external}{\emph{complete} intermodel fit (degree of
+#'   overall external exchangebility among the two datasets, measured
+#'   as Procrustean agreement of the two reciprocal models)
+#'   }
+#'   \item{stress1, stress2}{respective stress of model 1, model 2
+#'   }
+#'   \item{varexp1, varexp2}{respective variance explained of model 1,
+#'   model 2
+#'   }
+#'   }
+#'   }
+#'   }
 #'
 #' @details
 #' Reciprocal NMDS with \code{recip_nmds} estimates external
@@ -62,6 +90,7 @@
 #' @seealso \code{\link{boot_nmds}} for bootstrap NMDS, and
 #'      \code{\link{nearestspecies}} to force same number of rows
 #'      among candidate datasets
+#'
 #' @export
 #' @rdname recip_nmds
 ### reciprocal NMS model fitting

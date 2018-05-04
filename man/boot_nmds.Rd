@@ -36,21 +36,34 @@ synthetic gradients.}
 \item{col}{character vector of colors for spider lines}
 }
 \value{
-List of class \sQuote{boot_nmds} with elements:
+List of class \sQuote{boot_nmds} with elements:\cr
+\describe{
+  \item{rP_draw}{vector of rP_internal values for each replicate
+  }
+  \item{stresses}{vector of NMDS stress for each replicate
+  }
+  \item{sumtab}{summary across \emph{all} replicates (\strong{SRV}:
+   scaled rank variance; \strong{rP_internal}: internal sampling
+   variability)
+  }
+  \item{bootpt}{scores of each replicate configuration
+  }
+  }
 }
 \description{
 Bootstrap nonmetric multidimensional scaling (NMDS) to
-    estimate internal sampling variability.
+    estimate internal sampling variability.  Accompanied by summary
+    and plot methods.
 }
 \details{
 Bootstrapped NMDS with \code{boot_nmds} estimates internal sampling
 variability of a candidate dataset.  The premise of bootstrapped
 ordination is resampling with replacement from the reference
-dataset, performing NMDS ordination on each bootstrap replicate,
-then determining collective sampling variability  across all NMDS
-solutions.  Other uses of bootstrap NMDS may include estimating
-confidence regions for site scores, or testing the stability of
-species positions along ordination axes.
+dataset, performing NMDS ordination (Kruskal 1964) on each
+bootstrap replicate, then determining collective sampling
+variability across all NMDS solutions.  Other uses of bootstrap
+NMDS may include estimating confidence regions for site scores, or
+testing the stability of species positions along ordination axes.
 }
 \examples{
 set.seed(231)
@@ -58,7 +71,7 @@ data(smoky)
 x   <- list(spe=smoky$spe, id=smoky$env[,1:4])
 res <- boot_nmds(x, B=29, k=2, rot=TRUE)
 summary(res)
-plot(res, col='#00000040')
+plot(res, col='#00000040') # 'spider' plot
 
 # alternative plotting:
 rn  <- gsub('\\\\.[[:alnum:]]+$', '', row.names(res$bootpt))

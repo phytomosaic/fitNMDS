@@ -1,7 +1,8 @@
 #' @title Bootstrap NMDS
 #'
 #' @description Bootstrap nonmetric multidimensional scaling (NMDS) to
-#'     estimate internal sampling variability.
+#'     estimate internal sampling variability.  Accompanied by summary
+#'     and plot methods.
 #'
 #' @param x list of species and environment matrices
 #'
@@ -25,17 +26,29 @@
 #' @param ... additional arguments passed to function
 #'
 #' @return
-#' List of class \sQuote{boot_nmds} with elements:
+#' List of class \sQuote{boot_nmds} with elements:\cr
+#' \describe{
+#'   \item{rP_draw}{vector of rP_internal values for each replicate
+#'   }
+#'   \item{stresses}{vector of NMDS stress for each replicate
+#'   }
+#'   \item{sumtab}{summary across \emph{all} replicates (\strong{SRV}:
+#'    scaled rank variance; \strong{rP_internal}: internal sampling
+#'    variability)
+#'   }
+#'   \item{bootpt}{scores of each replicate configuration
+#'   }
+#'   }
 #'
 #' @details
 #' Bootstrapped NMDS with \code{boot_nmds} estimates internal sampling
 #' variability of a candidate dataset.  The premise of bootstrapped
 #' ordination is resampling with replacement from the reference
-#' dataset, performing NMDS ordination on each bootstrap replicate,
-#' then determining collective sampling variability  across all NMDS
-#' solutions.  Other uses of bootstrap NMDS may include estimating
-#' confidence regions for site scores, or testing the stability of
-#' species positions along ordination axes.
+#' dataset, performing NMDS ordination (Kruskal 1964) on each
+#' bootstrap replicate, then determining collective sampling
+#' variability across all NMDS solutions.  Other uses of bootstrap
+#' NMDS may include estimating confidence regions for site scores, or
+#' testing the stability of species positions along ordination axes.
 #'
 #' @examples
 #' set.seed(231)
@@ -43,7 +56,7 @@
 #' x   <- list(spe=smoky$spe, id=smoky$env[,1:4])
 #' res <- boot_nmds(x, B=29, k=2, rot=TRUE)
 #' summary(res)
-#' plot(res, col='#00000040')
+#' plot(res, col='#00000040') # 'spider' plot
 #'
 #' # alternative plotting:
 #' rn  <- gsub('\\.[[:alnum:]]+$', '', row.names(res$bootpt))
@@ -60,8 +73,7 @@
 #'
 #' @export
 #' @rdname boot_nmds
-### bootstrap NMDS core function for original ordn, bootstrap ordns,
-###    and summary stats
+### bootstrap NMDS core function
 `boot_nmds` <- function(x, B=9, BS, k=2, rot=TRUE, ... ){
      time0 <- Sys.time()
      environment(ordfn)  <- environment()
@@ -116,42 +128,6 @@
      out
 }
 
-# ### plot method for bootstrapped rP or Stress statistic
-# `plot_boot_rP` <- function(b_ref, b_trg, type=NULL, leg=FALSE, ...){
-#      type <- match.arg(type, c('rP', 'stress'))
-#      if(type == 'stress') {
-#           x     <- b_ref[[2]]
-#           y     <- b_trg[[2]]
-#           xlab  <- paste('Stress')
-#      } else {
-#           x     <- b_ref[[1]]
-#           y     <- b_trg[[1]]
-#           xlab  <- bquote(paste(R[P]))
-#      }
-#      xmin  <- floor(min(x, y)*10)/10
-#      xmax  <- min(ceiling(max(x, y)*10)/10, 1)
-#      brk   <- seq(xmin,xmax,0.01)
-#      xhist <- hist(x, breaks=brk, plot=F)
-#      yhist <- hist(y, breaks=brk, plot=F)
-#      xden  <- density(x, from=xmin, to=xmax)
-#      yden  <- density(y, from=xmin, to=xmax)
-#      dmax  <- max(xden$y, yden$y)
-#      hmax  <- max(xhist$counts, yhist$counts)
-#      adj   <- hmax/dmax
-#      c1    <- rgb(.1,.1,.1,.5)
-#      c2    <- rgb(.8,.8,.8,.5)
-#      plot(xhist, xlim=c(xmin,xmax), ylim=c(0,hmax), col=c1,
-#           main='', yaxt='n', ylab='', xlab=xlab)
-#      plot(yhist, col=c2, add=T)
-#      lines(xden$x, xden$y*adj) ; lines(yden$x, yden$y*adj, lty=2)
-#      if(leg){
-#           legend('topleft', c('D1', 'D2'), pch=21,
-#                  pt.bg=c(c1,c2), lty=1:2, col=1, xjust=1, yjust=1)
-#      }
-# }
-# # plot(res_boot[[1]], res_boot[[2]], 'rP')
-# # plot(res_boot[[1]], res_boot[[2]], 'stress')
-
 #' @export
 #' @rdname boot_nmds
 ### plot bootstraps as a spider around each centroid
@@ -165,14 +141,13 @@
      left  <- gsub('\\.[[:alnum:]]+$', '', rn)
      right <- gsub('.*\\.', '', rn)
      if(all(left=='' | left=='.')) { rn <- right }else{ rn <- left }
-     # cat('\nmay take a moment to render...\n\n')
      if(noaxes){
-          vegan::ordiplot(r,type='n',display='sites',
-                          bty='n',axes=F,ylab='',xlab='')
+          vegan::ordiplot(r,type='n',display='sites',bty='n',axes=F,
+                          ylab='',xlab='')
      }else{
-          vegan::ordiplot(r,type='n',display='sites',
-                          bty='l',las=1,xaxt='none',
-                          yaxt='none', ylab='NMDS2',xlab='NMDS1')
+          vegan::ordiplot(r,type='n',display='sites',bty='l',las=1,
+                          xaxt='none',yaxt='none',
+                          ylab='NMDS2',xlab='NMDS1')
      }
      vegan::ordispider(r, groups=as.factor(rn), col=col)
 }
