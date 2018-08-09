@@ -74,7 +74,7 @@
 #' @export
 #' @rdname boot_nmds
 ### bootstrap NMDS core function
-`boot_nmds` <- function(x, B=9, BS, k=2, rot=TRUE, ... ){
+`boot_nmds` <- function(x, B=9, BS, k=2, rot=TRUE, method='bray', ... ){
      time0 <- Sys.time()
      environment(ordfn)  <- environment()
      environment(bootfn) <- environment()
@@ -85,14 +85,14 @@
      N   <- nrow(spe)
      if(missing(BS)) BS <- N
      if( BS > N ) BS <- N
-     old <- ordfn(spe, id, k, rot) # orig reference ordination
+     old <- ordfn(spe, id, k, rot, ...) # orig reference ordination
      # do B bootstrap or N jackknife draws
      if (BS==1) {
           Draws <- sapply(1:N, FUN=function(x){
-               jackfn(spe, id, k, rot, old, indx=x)})
+               jackfn(spe, id, k, rot, old, indx=x, ...)})
           NC <- N
      } else {
-          Draws <- replicate(B, bootfn(spe, id, k, rot, old, BS))
+          Draws <- replicate(B, bootfn(spe, id, k, rot, old, BS, ...))
           NC <- B
      }
      # get bootstrap scores
@@ -156,21 +156,46 @@
 ### unexported functions:
 
 
-### stepacoss zero-adjusted Bray-Curtis dissimilarities
-###     toolong=1 is fixed (data may be disconnected if <1)
-`step_bray0` <- function(x, ...){
-     # need capture.output to silence unwanted message printing:
-     dontprint <- capture.output(
-          out <- vegan::stepacross(ecole::bray0(x), path='shortest',
-                                   toolong=1),
-          file=NULL
-     )
-     out
+# ### stepacross zero-adjusted Bray-Curtis dissimilarities
+# ###     toolong=1 is fixed (data may be disconnected if <1)
+# `step_bray0` <- function(x, ...){
+#      # need capture.output to silence unwanted message printing:
+#      dontprint <- capture.output(
+#           out <- vegan::stepacross(ecole::bray0(x), path='shortest',
+#                                    toolong=1),
+#           file=NULL
+#      )
+#      out
+# }
+
+### dissimilarity convenience function (replaces defunct `step_bray0`)
+###    use 'zero-adjusted' BC dissims only if zero-sum rows exist;
+###    stepacross only if no-share sample unit pairs exist (and the
+###    user allows).
+`dissim` <- function(x, method='bray', zeroadj=TRUE,
+                     allowstep=TRUE, ...){
+     x    <- as.matrix(x)
+     zero <- any(rowSums(x, na.rm = T) == 0)
+     if(zero && zeroadj && method=='bray'){
+          val <- min(x[x != 0], na.rm=TRUE)*0.5
+          x   <- cbind(x, rep(val, nrow(x)))
+     }
+     D   <- vegan::vegdist(x, method=method, ...)
+     nan <- is.nan(D)
+     noshare <- any(no.shared(x))
+     if( (any(nan) || noshare) && allowstep )   {
+          D[nan] <- NA
+          SILENT <- capture.output(
+               D <- vegan::stepacross(D, path = 'shortest',
+                                      toolong=0, ...)
+          )
+     }
+     D
 }
 
 ### general function to perform the ordinations
-`ordfn` <- function(spe, id, k, rot, ...){
-     D    <- try(step_bray0(spe), TRUE) # species dissimilarities
+`ordfn` <- function(spe, id, k, rot, method=method, ......){
+     D    <- try(dissim(spe, method=method, ...), TRUE)
      ord  <- vegan::metaMDS(D, k=k, trymax=99, autotransform=FALSE,
                             noshare=FALSE, wascores=FALSE, trace=0,
                             plot=FALSE, weakties=TRUE)

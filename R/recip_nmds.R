@@ -94,24 +94,21 @@
 #' @export
 #' @rdname recip_nmds
 ### reciprocal NMS model fitting
-`recip_nmds` <- function(x, k=2, ... ){
+`recip_nmds` <- function(x, k=2, method='bray', ...){
      if(class(x) != 'twin') stop('input must be class `twin`')
      d1 <- x[[1]][['spe']]    # dataset 1
      d2 <- x[[2]][['spe']]    # dataset 2
-     ind1  <- (1:nrow(d1))    # index d1
-     ind2  <- ((nrow(d1)+1):(nrow(d1)*2)) # index d2
-     grp   <- as.factor(c(rep('d1',nrow(d1)), rep('d2',nrow(d2))))
+     i1 <- (1:nrow(d1))       # index d1
+     i2 <- ((nrow(d1)+1):(nrow(d1)*2)) # index d2
+     grp <- as.factor(c(rep('d1',nrow(d1)), rep('d2',nrow(d2))))
      # join both datasets for the joint model
-     if(!identical(dimnames(d1)[2], dimnames(d2)[2]))
-          cat('\nspecies not exact match, joining data anyway\n\n')
-     d3a <- ecole::mx_rbind_all(d1, d2)
-     d3b <- ecole::mx_rbind_all(d2, d1)
+     d12 <- ecole::mx_rbind_all(d1, d2)
+     d21 <- ecole::mx_rbind_all(d2, d1)
      # distance matrices
-     D1  <- step_bray0(d1)
-     D2  <- step_bray0(d2)
-     D3  <- try(step_bray0(d3a), TRUE)
-     D12 <- D3 # also the same
-     D21 <- try(step_bray0(d3b), TRUE)
+     D1  <- dissim(d1, method=method, ...)
+     D2  <- dissim(d2, method=method, ...)
+     D12 <- try(dissim(d12, method=method, ...), TRUE)
+     D21 <- try(dissim(d21, method=method, ...), TRUE)
      # calibration models, separate datasets
      o1_ <- vegan::metaMDS(D1, k=k, trymax=99, autotransform=FALSE,
                            noshare=FALSE, wascores=FALSE, trace=0,
@@ -127,18 +124,17 @@
      o12     <- o12$newpoints     # dataset 2 scores in model 1
      o21     <- o21$newpoints     # dataset 1 scores in model 2
      # procrustes alignment
-     pp <- vegan::protest(rbind(o1_, o12), rbind(o21, o2_),
-                          perm=0, symm=T)
+     pp <- vegan::protest(rbind(o1_,o12),rbind(o21,o2_),perm=0,symm=T)
      m1 <- pp$X               # M1 RECIPROCAL model
      m2 <- pp$Yrot            # M2 RECIPROCAL model
      colnames(m2) <- colnames(m1)
      # PARTIAL intermodel fit: compare ea dataset to ITSELF btwn mods
-     d1_rP <- vegan::protest(m1[ind1,], m2[ind1,], perm=0, symm=T)$t0
-     d2_rP <- vegan::protest(m2[ind2,], m1[ind2,], perm=0, symm=T)$t0
+     d1_rP <- vegan::protest(m1[i1,], m2[i1,], perm=0, symm=T)$t0
+     d2_rP <- vegan::protest(m2[i2,], m1[i2,], perm=0, symm=T)$t0
      # COMPLETE intermodel fit: compare each model to the other
      rP_external <- pp$t0  # M1 vs M2 fit
      # var expl by each configuration = R2 = coef of detn (as PCORD7)
-     Ds  <- vegan::vegdist(d3a, 'bray', diag=T, upper=T)
+     Ds  <- vegan::vegdist(d12, 'bray', diag=T, upper=T)
      Dz1 <- dist(m1)
      Dz2 <- dist(m2)
      ve1 <- cor(Ds,Dz1,meth='pear')^2
