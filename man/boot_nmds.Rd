@@ -3,15 +3,14 @@
 \name{boot_nmds}
 \alias{boot_nmds}
 \alias{summary.boot_nmds}
-\alias{plot.boot_nmds}
-\title{Bootstrap NMDS}
+\alias{plot_boot}
+\title{Bootstrap or jackknife NMDS}
 \usage{
-boot_nmds(x, B = 9, BS, k = 2, rot = TRUE, ...)
+boot_nmds(x, B = 9, BS, k = 2, rot = TRUE, method = "bray", ...)
 
 \method{summary}{boot_nmds}(object, ...)
 
-\method{plot}{boot_nmds}(object, noaxes = F, col = rgb(0, 0, 0, 10, max =
-  255), ...)
+plot_boot(object, noaxes = F, col = "#0000000A", ...)
 }
 \arguments{
 \item{x}{list of species and environment matrices}
@@ -19,13 +18,16 @@ boot_nmds(x, B = 9, BS, k = 2, rot = TRUE, ...)
 \item{B}{number of bootstrap replicates}
 
 \item{BS}{bootstrap size (if not equal to number of rows in
-original matrix)}
+original matrix).  If \code{BS=1} then jackknife NMDS is done
+(leave-one-out).}
 
 \item{k}{number of dimensions sought in final NMDS solution}
 
 \item{rot}{logical, should solution be rotated to similarity with
 an environmental gradient? Probably only sensible with known
 synthetic gradients.}
+
+\item{method}{dissimilarity index, per \code{\link[vegan]{vegdist}}}
 
 \item{...}{additional arguments passed to function}
 
@@ -51,9 +53,9 @@ List of class \sQuote{boot_nmds} with elements:\cr
   }
 }
 \description{
-Bootstrap nonmetric multidimensional scaling (NMDS) to
-    estimate internal sampling variability.  Accompanied by summary
-    and plot methods.
+Bootstrap or jackknife nonmetric multidimensional
+    scaling (NMDS) to estimate internal sampling variability.
+    Accompanied by summary and plot methods.
 }
 \details{
 Bootstrapped NMDS with \code{boot_nmds} estimates internal sampling
@@ -71,11 +73,11 @@ data(smoky)
 x   <- list(spe=smoky$spe, id=smoky$env[,1:4])
 res <- boot_nmds(x, B=29, k=2, rot=TRUE)
 summary(res)
-plot(res, col='#00000040') # 'spider' plot
+plot_boot(res, col='#00000040') # 'spider' plot
 
 # alternative plotting:
 rn  <- gsub('\\\\.[[:alnum:]]+$', '', row.names(res$bootpt))
-plot(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
+plot_boot(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
 
 }
 \references{

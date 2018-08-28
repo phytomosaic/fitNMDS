@@ -1,21 +1,24 @@
-#' @title Bootstrap NMDS
+#' @title Bootstrap or jackknife NMDS
 #'
-#' @description Bootstrap nonmetric multidimensional scaling (NMDS) to
-#'     estimate internal sampling variability.  Accompanied by summary
-#'     and plot methods.
+#' @description Bootstrap or jackknife nonmetric multidimensional
+#'     scaling (NMDS) to estimate internal sampling variability.
+#'     Accompanied by summary and plot methods.
 #'
 #' @param x list of species and environment matrices
 #'
 #' @param B number of bootstrap replicates
 #'
 #' @param BS bootstrap size (if not equal to number of rows in
-#'     original matrix)
+#'     original matrix).  If \code{BS=1} then jackknife NMDS is done
+#'     (leave-one-out).
 #'
 #' @param k number of dimensions sought in final NMDS solution
 #'
 #' @param rot logical, should solution be rotated to similarity with
 #'    an environmental gradient? Probably only sensible with known
 #'    synthetic gradients.
+#'
+#' @param method dissimilarity index, per \code{\link[vegan]{vegdist}}
 #'
 #' @param object result from \code{boot_nmds}
 #'
@@ -56,11 +59,11 @@
 #' x   <- list(spe=smoky$spe, id=smoky$env[,1:4])
 #' res <- boot_nmds(x, B=29, k=2, rot=TRUE)
 #' summary(res)
-#' plot(res, col='#00000040') # 'spider' plot
+#' plot_boot(res, col='#00000040') # 'spider' plot
 #'
 #' # alternative plotting:
 #' rn  <- gsub('\\.[[:alnum:]]+$', '', row.names(res$bootpt))
-#' plot(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
+#' plot_boot(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
 #'
 #' @references
 #' Kruskal, J. B. 1964. Multidimensional scaling by optimizing
@@ -74,18 +77,18 @@
 #' @export
 #' @rdname boot_nmds
 ### bootstrap NMDS core function
-`boot_nmds` <- function(x, B=9, BS, k=2, rot=TRUE, method='bray', ... ){
+`boot_nmds` <- function(x, B=9, BS, k=2, rot=TRUE, method='bray', ...){
      time0 <- Sys.time()
      environment(ordfn)  <- environment()
      environment(bootfn) <- environment()
      environment(jackfn) <- environment()
      spe <- x[['spe']]
      id  <- x[['id']]
-     M   <- ncol(spe)
-     N   <- nrow(spe)
+     M   <- NCOL(spe)
+     N   <- NROW(spe)
      if(missing(BS)) BS <- N
      if( BS > N ) BS <- N
-     old <- ordfn(spe, id, k, rot, ...) # orig reference ordination
+     old <- ordfn(spe, id, k, rot, method, ...) # orig reference ordination
      # do B bootstrap or N jackknife draws
      if (BS==1) {
           Draws <- sapply(1:N, FUN=function(x){
@@ -96,7 +99,8 @@
           NC <- B
      }
      # get bootstrap scores
-     bscr <- do.call(rbind, lapply(1:B, function(x)Draws[,x]$points))
+     # bscr <- do.call(rbind, lapply(1:B, function(x)Draws[,x]$points))
+     bscr <- do.call(rbind, lapply(1:NC, function(x)Draws[,x]$points))
      # get SRV of bootstrapped ordns (to assess species stability)
      rnk <- Draws['rnk', ]
      xx  <- matrix(NA, nrow=prod(dim(Draws[,1]$rnk)), ncol=NC)
@@ -131,9 +135,8 @@
 #' @export
 #' @rdname boot_nmds
 ### plot bootstraps as a spider around each centroid
-###     (formerly `plot_boot_spider`)
-`plot.boot_nmds` <- function(object, noaxes=F,
-                             col=rgb(0,0,0,10,max=255), ...) {
+`plot_boot` <- function(object, noaxes=F, col='#0000000A', ...){
+     stopifnot(class(object)=='boot_nmds')
      r     <- object$bootpt
      # sloppy hack to handle punctuation in rownames:
      rn    <- row.names(r)
@@ -152,30 +155,14 @@
      vegan::ordispider(r, groups=as.factor(rn), col=col)
 }
 
-
 ### unexported functions:
 
-
-# ### stepacross zero-adjusted Bray-Curtis dissimilarities
-# ###     toolong=1 is fixed (data may be disconnected if <1)
-# `step_bray0` <- function(x, ...){
-#      # need capture.output to silence unwanted message printing:
-#      dontprint <- capture.output(
-#           out <- vegan::stepacross(ecole::bray0(x), path='shortest',
-#                                    toolong=1),
-#           file=NULL
-#      )
-#      out
-# }
-
 ### dissimilarity convenience function (replaces defunct `step_bray0`)
-###    use 'zero-adjusted' BC dissims only if zero-sum rows exist;
-###    stepacross only if no-share sample unit pairs exist (and the
-###    user allows).
-`dissim` <- function(x, method='bray', zeroadj=TRUE,
-                     allowstep=TRUE, ...){
+###    'zero-adjusted' BC dissims iff zero-sum rows exist; stepacross
+###    iff no-share sample unit pairs exist and user allows.
+`dissim` <- function(x, method='bray', zeroadj=TRUE, step=TRUE, ...){
      x    <- as.matrix(x)
-     zero <- any(rowSums(x, na.rm = T) == 0)
+     zero <- any(rowSums(x, na.rm = TRUE) == 0)
      if(zero && zeroadj && method=='bray'){
           val <- min(x[x != 0], na.rm=TRUE)*0.5
           x   <- cbind(x, rep(val, nrow(x)))
@@ -183,19 +170,19 @@
      D   <- vegan::vegdist(x, method=method, ...)
      nan <- is.nan(D)
      noshare <- any(no.shared(x))
-     if( (any(nan) || noshare) && allowstep )   {
+     if((any(nan)||noshare) && step){
           D[nan] <- NA
           SILENT <- capture.output(
-               D <- vegan::stepacross(D, path = 'shortest',
-                                      toolong=0, ...)
+               D <- vegan::stepacross(D, path = 'shortest', toolong=0,
+                                      ...)
           )
      }
      D
 }
 
 ### general function to perform the ordinations
-`ordfn` <- function(spe, id, k, rot, method=method, ......){
-     D    <- try(dissim(spe, method=method, ...), TRUE)
+`ordfn` <- function(spe, id, k, rot, method, ...){
+     D    <- try(dissim(spe, ...), TRUE)
      ord  <- vegan::metaMDS(D, k=k, trymax=99, autotransform=FALSE,
                             noshare=FALSE, wascores=FALSE, trace=0,
                             plot=FALSE, weakties=TRUE)
@@ -217,9 +204,9 @@
 `jackfn` <- function(spe, id, k, rot, old, indx, ... ){
      environment(ordfn) <- environment()
      oldscr <- old$points[-indx,]
-     neword <- ordfn(spe[-indx,], id[-indx,], k, rot)
+     neword <- ordfn(spe[-indx,], id[-indx,], k, rot, method)
      newscr <- neword$points
-     pro           <- vegan::protest(oldscr, newscr, symm=T, perm=0)
+     pro    <- vegan::protest(oldscr, newscr, symm=T, perm=0)
      neword$rP     <- pro$t0   # procrustes fit to ORIG reference ordn
      neword$points <- pro$Yrot # pass bootstrapped scores
      neword
@@ -238,9 +225,9 @@
           i <- i + 1
      }
      if(i>1) cat(sprintf('%d iters of rejection sampling\n',i))
-     neword <- ordfn(spe[indx,], id[indx,], k, rot)
+     neword <- ordfn(spe[indx,], id[indx,], k, rot, method)
      newscr <- neword$points
-     pro           <- vegan::protest(oldscr, newscr, symm=T, perm=0)
+     pro    <- vegan::protest(oldscr, newscr, symm=T, perm=0)
      neword$rP     <- pro$t0   # procrustes fit to ORIG reference ordn
      neword$points <- pro$Yrot # pass bootstrapped scores
      neword

@@ -8,6 +8,8 @@
 #'
 #' @param k number of dimensions sought in final NMDS solution
 #'
+#' @param method dissimilarity index, per \code{\link[vegan]{vegdist}}
+#'
 #' @param object result from \code{recip_nmds}
 #'
 #' @param type for plotting, one of \code{c('points', 'text',
@@ -105,10 +107,10 @@
      d12 <- ecole::mx_rbind_all(d1, d2)
      d21 <- ecole::mx_rbind_all(d2, d1)
      # distance matrices
-     D1  <- dissim(d1, method=method, ...)
-     D2  <- dissim(d2, method=method, ...)
-     D12 <- try(dissim(d12, method=method, ...), TRUE)
-     D21 <- try(dissim(d21, method=method, ...), TRUE)
+     D1  <- dissim(d1, method, ...)
+     D2  <- dissim(d2, method, ...)
+     D12 <- try(dissim(d12, method, ...), TRUE)
+     D21 <- try(dissim(d21, method, ...), TRUE)
      # calibration models, separate datasets
      o1_ <- vegan::metaMDS(D1, k=k, trymax=99, autotransform=FALSE,
                            noshare=FALSE, wascores=FALSE, trace=0,

@@ -8,7 +8,7 @@
 \alias{plot_axismatch}
 \title{Reciprocal NMDS}
 \usage{
-recip_nmds(x, k = 2, ...)
+recip_nmds(x, k = 2, method = "bray", ...)
 
 \method{summary}{recip_nmds}(object, ...)
 
@@ -24,6 +24,8 @@ plot_axismatch(object, ...)
 \sQuote{twin}}
 
 \item{k}{number of dimensions sought in final NMDS solution}
+
+\item{method}{dissimilarity index, per \code{\link[vegan]{vegdist}}}
 
 \item{...}{additional arguments passed to function}
 

@@ -1,6 +1,6 @@
 Package: fitNMDS
-Version: 0.1.0-2018
-Date: 2018-03-29
+Version: 0.1.3-2018
+Date: 2018-08-28
 Type: Package
 Title: Fitting Bootstrapped and Reciprocal NMDS Models
 Author: Robert J. Smith <smithr2@oregonstate.edu>
