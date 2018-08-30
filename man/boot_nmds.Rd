@@ -3,54 +3,67 @@
 \name{boot_nmds}
 \alias{boot_nmds}
 \alias{summary.boot_nmds}
-\alias{plot_boot}
+\alias{plot.boot_nmds}
 \title{Bootstrap or jackknife NMDS}
 \usage{
-boot_nmds(x, B = 9, BS, k = 2, rot = TRUE, method = "bray", ...)
+boot_nmds(spe, B = 9, BS = NULL, k = 2, method = "bray",
+  zeroadj = TRUE, step = TRUE, ...)
 
 \method{summary}{boot_nmds}(object, ...)
 
-plot_boot(object, noaxes = F, col = "#0000000A", ...)
+\method{plot}{boot_nmds}(x, noaxes = F, col = "#00000040",
+  type = "spider", ...)
 }
 \arguments{
-\item{x}{list of species and environment matrices}
+\item{spe}{species abundance matrix}
 
 \item{B}{number of bootstrap replicates}
 
-\item{BS}{bootstrap size (if not equal to number of rows in
-original matrix).  If \code{BS=1} then jackknife NMDS is done
-(leave-one-out).}
+\item{BS}{bootstrap size (currently constrained to not exceed the
+number of rows in original matrix). Default \code{BS=NULL}, or
+else \code{BS=1}, will perform jackknife NMDS (leave-one-out).}
 
 \item{k}{number of dimensions sought in final NMDS solution}
 
-\item{rot}{logical, should solution be rotated to similarity with
-an environmental gradient? Probably only sensible with known
-synthetic gradients.}
-
 \item{method}{dissimilarity index, per \code{\link[vegan]{vegdist}}}
+
+\item{zeroadj}{logical, default \code{TRUE}: adjust dissimilarities
+to account for zero-sum rows?}
+
+\item{step}{logical, default \code{TRUE}: use shortest-path
+stepacross dissimilarity adjustment?}
 
 \item{...}{additional arguments passed to function}
 
-\item{object}{result from \code{boot_nmds}}
+\item{x, object}{result from \code{boot_nmds}}
 
-\item{noaxes}{logical, plot without axes?}
+\item{noaxes}{logical, default \code{TRUE}: plot without axes?}
 
 \item{col}{character vector of colors for spider lines}
+
+\item{type}{plot type, one of \code{'spider'} or \code{'points'}
+for ordination plots, or \code{'hist'} to plot the distribution
+of fit statistics across resampling replicates}
 }
 \value{
 List of class \sQuote{boot_nmds} with elements:\cr
 \describe{
-  \item{rP_draw}{vector of rP_internal values for each replicate
-  }
-  \item{stresses}{vector of NMDS stress for each replicate
-  }
-  \item{sumtab}{summary across \emph{all} replicates (\strong{SRV}:
-   scaled rank variance; \strong{rP_internal}: internal sampling
-   variability)
-  }
-  \item{bootpt}{scores of each replicate configuration
-  }
-  }
+     \item{\code{rP_draw}:}{
+          Vector of rP_internal values for each replicate.
+     }
+     \item{\code{stresses}:}{
+          Vector of NMDS stress for each replicate.
+     }
+     \item{\code{SRV}:}{
+          Scaled rank variance across all replicates.
+     }
+     \item{\code{rP_internal}:}{
+          Internal sampling variability across all replicates.
+     }
+     \item{\code{bootpt}:}{
+          Scores of each replicate configuration.
+     }
+}
 }
 \description{
 Bootstrap or jackknife nonmetric multidimensional
@@ -58,32 +71,51 @@ Bootstrap or jackknife nonmetric multidimensional
     Accompanied by summary and plot methods.
 }
 \details{
-Bootstrapped NMDS with \code{boot_nmds} estimates internal sampling
-variability of a candidate dataset.  The premise of bootstrapped
-ordination is resampling with replacement from the reference
-dataset, performing NMDS ordination (Kruskal 1964) on each
-bootstrap replicate, then determining collective sampling
-variability across all NMDS solutions.  Other uses of bootstrap
-NMDS may include estimating confidence regions for site scores, or
-testing the stability of species positions along ordination axes.
+Bootstrap or jackknife resampling of NMDS with \code{boot_nmds}
+estimates internal sampling variability of a candidate dataset.
+The premise of this is resampling with replacement from the
+dissimilarities matrix, performing NMDS ordination (Kruskal 1964)
+on each resampled replicate, then determining collective sampling
+variability across all NMDS solutions as \code{rP_internal}.  Other
+uses of resampled NMDS may include estimating confidence regions
+for site scores, or testing the \sQuote{stability} of species
+positions along ordination axes using Scaled Rank Variance of Knox
+and Peet (1989).
+
+Users may select dissimilarity index per
+\code{\link[vegan]{vegdist}}, as well as options for zero-adjusted
+dissimilarities (Clarke et al. 2006) using \code{zeroadj=TRUE},
+and/or shortest-path \code{\link[vegan]{stepacross}}
+dissimilarities using \code{step=TRUE}.
 }
 \examples{
 set.seed(231)
 data(smoky)
-x   <- list(spe=smoky$spe, id=smoky$env[,1:4])
-res <- boot_nmds(x, B=29, k=2, rot=TRUE)
-summary(res)
-plot_boot(res, col='#00000040') # 'spider' plot
+x   <- smoky$spe
 
-# alternative plotting:
+# simplistic dataset yields a few poor solutions, with warning:
+res <- boot_nmds(x, B=29, k=2)
+summary(res)
+plot(res)
+plot(res, type='points')
+plot(res, type='hist')
+
+# alternatively, plot replicates colored by each sample unit:
 rn  <- gsub('\\\\.[[:alnum:]]+$', '', row.names(res$bootpt))
-plot_boot(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
+plot(res, col=ecole::colvec(as.factor(rn), alpha=0.5))
 
 }
 \references{
+Clarke, K.R., P.J. Somerfield, and M.G. Chapman. 2006. On
+    resemblance measures for ecological studies, including
+    taxonomic dissim and a zero-adjusted Bray–Curtis coefficient
+    for denuded assemblages. J Exp Marine Biol and Ecol 330:55–80.
+Knox, R. G., and R. K. Peet. 1989. Bootstrapped ordination: a
+    method for estimating sampling effects in indirect gradient
+    analysis. Vegetatio 80:153–165.
 Kruskal, J. B. 1964. Multidimensional scaling by optimizing
-  goodness of fit to a nonmetric hypothesis. Psychometrika 29:
-  1-27.
+    goodness of fit to a nonmetric hypothesis. Psychometrika 29:
+    1-27.
 }
 \seealso{
 \code{\link{recip_nmds}} for reciprocal NMDS, and
