@@ -32,7 +32,7 @@ tw   <- twin(spe1, spe2, env1, env2)
 
 ### Resampled NMDS of one dataset
 ```r
-x   <- list(spe=spe1, id=env1)
+x   <- spe1
 res <- resamp_nmds(x, k=2)
 summary(res)
 plot(res, col='#00000050')
@@ -62,5 +62,5 @@ env1 <- env1[i,,]
 tw   <- twin(spe1, spe2, env1, env2)
 res  <- recip_nmds(tw)
 summary(res)
-plot(res)
+plot(res)     # expect near-perfect match
 ```
