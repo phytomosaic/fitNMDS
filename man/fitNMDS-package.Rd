@@ -17,13 +17,13 @@ Combining two different datasets into one nonmetric
     estimating internal agreement (sampling variability) relative
     to external agreement (exchangeability).
 
-    Bootstrapped NMDS with \code{boot_nmds} estimates internal
+    Resampled NMDS with \code{resamp_nmds} estimates internal
     agreement (sampling variability) of one candidate dataset.
-    The premise of bootstrapped ordination is resampling with
-    replacement from the reference dataset, performing NMDS
-    ordination on each bootstrap replicate, then determining
-    collective stability across all NMDS solutions.  Other uses of
-    bootstrap NMDS may include estimating confidence regions for
+    The premise of this is to resample dissimilarities (either
+    through jackknife or bootstrap resampling), perform NMDS
+    ordination on each resampled replicate, then determine
+    collective agreement across all NMDS solutions.  Other uses of
+    resampled NMDS may include estimating confidence regions for
     ordination site scores, or testing the stability of species
     positions along ordination axes.
 

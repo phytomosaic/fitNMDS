@@ -1,12 +1,10 @@
 # fitNMDS
-Fitting bootstrapped and reciprocal NMDS models.
+Fitting resampled and reciprocal NMDS models.
 
 
 ## Motivation
 
-Combining two different datasets into one nonmetric multidimensional scaling (NMDS) model can be risky if they each cover different
-attribute spaces (e.g., different species pools in ecology). Therefore, comparing two datasets requires estimating internal sampling 
-variability (using bootstrapped NMDS) relative to external exchangeability (using reciprocal NMDS).
+Combining two different datasets into one nonmetric multidimensional scaling (NMDS) model can be risky if they each cover different attribute spaces (e.g., different species pools in ecology). Therefore, comparing two datasets requires estimating internal sampling variability (using resampled NMDS) relative to external exchangeability (using reciprocal NMDS).
 
 
 ## Installation
@@ -32,12 +30,12 @@ tw   <- twin(spe1, spe2, env1, env2)
 ```
 
 
-### Bootstrap NMDS of one dataset
+### Resampled NMDS of one dataset
 ```r
 x   <- list(spe=spe1, id=env1)
-res <- boot_nmds(x, B=29, k=2, rot=TRUE)
+res <- resamp_nmds(x, k=2)
 summary(res)
-plot(res, col='#00000040')
+plot(res, col='#00000050')
 ```
 
 
@@ -49,7 +47,7 @@ plot(res, noaxes=FALSE)
 ```
 
 
-### Correct unequal sample sizes among two datasets
+### Correct unequal sample sizes prior to reciprocal NMDS
 ```r
 # two candidate datasets, full and partial
 spe2 <- spe1[1:11,]

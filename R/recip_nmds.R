@@ -3,22 +3,27 @@
 #' @description Reciprocal nonmetric multidimensional scaling (NMDS)
 #'     to estimate external exchangeability of two datasets.
 #'
-#' @param x list of species and environment matrices, of class
+#' @param tw list of species and environment matrices, of class
 #'     \sQuote{twin}
-#'
-#' @param k number of dimensions sought in final NMDS solution
 #'
 #' @param method dissimilarity index, per \code{\link[vegan]{vegdist}}
 #'
-#' @param object result from \code{recip_nmds}
+#' @param zeroadj default \code{TRUE}: adjust dissimilarities to
+#'      account for zero-sum rows?
 #'
-#' @param type for plotting, one of \code{c('points', 'text',
-#'     'twinned')}
+#' @param step default \code{TRUE}: use shortest-path stepacross
+#'      dissimilarity adjustment?
+#'
+#' @param k number of dimensions sought in final NMDS solution
+#'
+#' @param x,object result from \code{recip_nmds}
+#'
+#' @param type for plotting, one of \code{'points'}, \code{'text'},
+#'      or \code{'twin'}
 #'
 #' @param leg logical, should legend be plotted?
 #'
-#' @param noaxes logical, should a clean configuration with no axes be
-#'      plotted?
+#' @param noaxes default \code{TRUE}: cleanly plot without axes?
 #'
 #' @param ... additional arguments passed to function
 #'
@@ -26,28 +31,35 @@
 #' List of class \sQuote{recip_nmds} with elements:\cr
 #'
 #' \describe{
-#'   \item{m1}{reciprocal model 1, calibrated with dataset 1 then
-#'          swapping in dataset 2)
+#'   \item{\code{m1}:}{
+#'        Reciprocal model 1, calibrated with dataset 1 then swapping
+#'        in dataset 2.)
 #'   }
-#'   \item{m2}{reciprocal model 2, calibrated with dataset 2 then
-#'          swapping in dataset 1
+#'   \item{\code{m2}:}{
+#'        Reciprocal model 2, calibrated with dataset 2 then swapping
+#'        in dataset 1.)
 #'   }
-#'   \item{grp}{vector identifying group membership in dataset 1 or 2
+#'   \item{\code{grp}:}{
+#'        Vector identifying group membership in dataset 1 or 2.
 #'   }
-#'   \item{sumtab}{data.frame summary table, with elements:
+#'   \item{\code{sumtab}:}{
+#'        \code{data.frame} summary table, with elements:
 #' \describe{
-#'   \item{d1_rP, d2_rP}{\emph{partial} intermodel fit for group 1,
-#'   group 2 data (i.e., how well each dataset fits the opposing
-#'   calibration model)
+#'   \item{d1_rP, d2_rP}{
+#'        \emph{Partial} intermodel fit for group 1, group 2 data
+#'        (i.e., how well each dataset fits the opposing calibration
+#'        model).
 #'   }
-#'   \item{rP_external}{\emph{complete} intermodel fit (degree of
-#'   overall external exchangebility among the two datasets, measured
-#'   as Procrustean agreement of the two reciprocal models)
+#'   \item{rP_external}{
+#'        \emph{Complete} intermodel fit (degree of overall external
+#'        exchangebility among the two datasets, measured as
+#'        Procrustean agreement of the two reciprocal models).
 #'   }
-#'   \item{stress1, stress2}{respective stress of model 1, model 2
+#'   \item{stress1, stress2}{
+#'        Respective stress of models 1,2.
 #'   }
-#'   \item{varexp1, varexp2}{respective variance explained of model 1,
-#'   model 2
+#'   \item{varexp1, varexp2}{
+#'        Respective variance explained of models 1,2.
 #'   }
 #'   }
 #'   }
@@ -89,64 +101,71 @@
 #'   1-27.
 #'
 #' @family reciprocal NMDS functions
-#' @seealso \code{\link{boot_nmds}} for bootstrap NMDS, and
+#' @seealso \code{\link{resamp_nmds}} for resampled NMDS, and
 #'      \code{\link{nearestspecies}} to force same number of rows
-#'      among candidate datasets
+#'      among candidate datasets.
 #'
 #' @export
 #' @rdname recip_nmds
 ### reciprocal NMS model fitting
-`recip_nmds` <- function(x, k=2, method='bray', ...){
-     if(class(x) != 'twin') stop('input must be class `twin`')
-     d1 <- x[[1]][['spe']]    # dataset 1
-     d2 <- x[[2]][['spe']]    # dataset 2
+`recip_nmds` <- function(tw, method='bray', zeroadj=TRUE, step=TRUE,
+                         k=2, ...){
+     if(class(tw) != 'twin') stop('input must be class `twin`')
+     d1 <- tw[[1]][['spe']]    # dataset 1
+     d2 <- tw[[2]][['spe']]    # dataset 2
      i1 <- (1:nrow(d1))       # index d1
      i2 <- ((nrow(d1)+1):(nrow(d1)*2)) # index d2
      grp <- as.factor(c(rep('d1',nrow(d1)), rep('d2',nrow(d2))))
-     # join both datasets for the joint model
+
+     ### join both datasets for the joint model
      d12 <- ecole::mx_rbind_all(d1, d2)
      d21 <- ecole::mx_rbind_all(d2, d1)
-     # distance matrices
-     D1  <- dissim(d1, method, ...)
-     D2  <- dissim(d2, method, ...)
-     D12 <- try(dissim(d12, method, ...), TRUE)
-     D21 <- try(dissim(d21, method, ...), TRUE)
-     # calibration models, separate datasets
+
+     ### dissimilarity matrices
+     D1  <- dissim(x=d1, method, zeroadj, step, ...)
+     D2  <- dissim(x=d2, method, zeroadj, step, ...)
+     D12 <- try(dissim(x=d12, method, zeroadj, step, ...), TRUE)
+     D21 <- try(dissim(x=d21, method, zeroadj, step, ...), TRUE)
+
+     ### calibration models, separate datasets
      o1_ <- vegan::metaMDS(D1, k=k, trymax=99, autotransform=FALSE,
                            noshare=FALSE, wascores=FALSE, trace=0,
                            plot=FALSE, weakties=TRUE)$points
      o2_ <- vegan::metaMDS(D2, k=k, trymax=99, autotransform=FALSE,
                            noshare=FALSE, wascores=FALSE, trace=0,
                            plot=FALSE, weakties=TRUE)$points
-     # reciprocal models, predict scores on 'swapped' data
+
+     ### reciprocal models, predict scores on 'swapped' data
      o12 <- NMSpredict(scr=o1_, dis=D12, neighb=10, maxits=200)
      o21 <- NMSpredict(scr=o2_, dis=D21, neighb=10, maxits=200)
      stress1 <- o12$stress
      stress2 <- o21$stress
      o12     <- o12$newpoints     # dataset 2 scores in model 1
      o21     <- o21$newpoints     # dataset 1 scores in model 2
-     # procrustes alignment
+
+     ### procrustes alignment
      pp <- vegan::protest(rbind(o1_,o12),rbind(o21,o2_),perm=0,symm=T)
      m1 <- pp$X               # M1 RECIPROCAL model
      m2 <- pp$Yrot            # M2 RECIPROCAL model
      colnames(m2) <- colnames(m1)
-     # PARTIAL intermodel fit: compare ea dataset to ITSELF btwn mods
+
+     ### PARTIAL intermodel fit compare ea dataset to ITSELF btwn mods
      d1_rP <- vegan::protest(m1[i1,], m2[i1,], perm=0, symm=T)$t0
      d2_rP <- vegan::protest(m2[i2,], m1[i2,], perm=0, symm=T)$t0
-     # COMPLETE intermodel fit: compare each model to the other
-     rP_external <- pp$t0  # M1 vs M2 fit
-     # var expl by each configuration = R2 = coef of detn (as PCORD7)
-     Ds  <- vegan::vegdist(d12, 'bray', diag=T, upper=T)
+     ### COMPLETE intermodel fit: compare each model to the other
+     rP_ext <- pp$t0
+     ### var expl by each configuration = R2 (as PCORD7)
      Dz1 <- dist(m1)
      Dz2 <- dist(m2)
-     ve1 <- cor(Ds,Dz1,meth='pear')^2
-     ve2 <- cor(Ds,Dz2,meth='pear')^2
-     # output
+     ve1 <- cor(D12, Dz1, method='pearson')^2
+     ve2 <- cor(D12, Dz2, method='pearson')^2
+
+     ### output list
      out <- list(m1=m1, m2=m2, grp=grp,
-                 sumtab=round(data.frame(
+                 sumtab=round(c(
                       d1_rP   = d1_rP,      # partial intermodel fit
                       d2_rP   = d2_rP,      # partial intermodel fit
-                      rP_external= rP_external,   # complete intermodel fit
+                      rP_external= rP_ext,  # complete intermodel fit
                       stress1 = stress1,    # stress M1
                       stress2 = stress2,    # stress M2
                       varexp1 = ve1,        # var explained M1
@@ -155,15 +174,11 @@
      out
 }
 
-
 #' @export
 #' @rdname recip_nmds
 ### summary method for reciprocal fit statistics
 `summary.recip_nmds` <- function(object, ...){
-     out <- c(t(object[['sumtab']]))
-     names(out) <- c('d1_rP','d2_rP','rP_external',
-                     'stress1','stress2','varexp1','varexp2')
-     out
+     object[['sumtab']]
 }
 
 #' @export
@@ -172,7 +187,7 @@
 `plot.recip_nmds` <- function(x, type='points', leg=FALSE,
                               noaxes=TRUE, ...){
      if(class(x) != 'recip_nmds') stop('input must be `recip_nmds`')
-     type <- match.arg(type, c('points', 'text', 'twinned'))
+     type <- match.arg(type, c('points', 'text', 'twin'))
      if(type=='points'){
           if(noaxes){
                vegan::ordiplot(x$m1,dis='sites',type='n',bty='n',
@@ -209,7 +224,7 @@
                       cex=0.7, title='Models', horiz=T)
           }
      }
-     if(type=='twinned'){
+     if(type=='twin'){
           op <- par(mfrow=c(1,2), oma=rep(0,4)+.1, mar=c(2,2,2,0)+.1)
           vegan::ordiplot(x$m1,dis='sites',type='t',xlab='NMDS1',
                           ylab='NMDS2',main='Model 1: D1+D2')
@@ -282,14 +297,16 @@
 }
 
 
-### unexported functions:
+######################################################################
+###     UNEXPORTED functions:     #############################
+######################################################################
 
 
 ############      #' @useDynLib vegan
 ### NMSpredict core algorithm lightly adapted from add.points()
 `NMSpredict` <- function(scr, dis, neighb, maxits){
-     if (!requireNamespace("vegan", quietly = FALSE)) {
-          stop("Package package `vegan` required", call.=FALSE)
+     if (!requireNamespace('vegan', quietly = FALSE)) {
+          stop('Package package `vegan` required', call.=FALSE)
      }
      # convert original scores to local matrix, and get sizes
      points  <- list(points=scr)

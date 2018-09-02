@@ -8,7 +8,7 @@
 \alias{plot_axismatch}
 \title{Reciprocal NMDS}
 \usage{
-recip_nmds(x, k = 2, method = "bray", ...)
+recip_nmds(tw, method = "bray", zeroadj = TRUE, step = TRUE, k = 2, ...)
 
 \method{summary}{recip_nmds}(object, ...)
 
@@ -20,51 +20,63 @@ plot_marg_grp(object, ...)
 plot_axismatch(object, ...)
 }
 \arguments{
-\item{x}{list of species and environment matrices, of class
+\item{tw}{list of species and environment matrices, of class
 \sQuote{twin}}
-
-\item{k}{number of dimensions sought in final NMDS solution}
 
 \item{method}{dissimilarity index, per \code{\link[vegan]{vegdist}}}
 
+\item{zeroadj}{default \code{TRUE}: adjust dissimilarities to
+account for zero-sum rows?}
+
+\item{step}{default \code{TRUE}: use shortest-path stepacross
+dissimilarity adjustment?}
+
+\item{k}{number of dimensions sought in final NMDS solution}
+
 \item{...}{additional arguments passed to function}
 
-\item{object}{result from \code{recip_nmds}}
+\item{x, object}{result from \code{recip_nmds}}
 
-\item{type}{for plotting, one of \code{c('points', 'text',
-'twinned')}}
+\item{type}{for plotting, one of \code{'points'}, \code{'text'},
+or \code{'twin'}}
 
 \item{leg}{logical, should legend be plotted?}
 
-\item{noaxes}{logical, should a clean configuration with no axes be
-plotted?}
+\item{noaxes}{default \code{TRUE}: cleanly plot without axes?}
 }
 \value{
 List of class \sQuote{recip_nmds} with elements:\cr
 
 \describe{
-  \item{m1}{reciprocal model 1, calibrated with dataset 1 then
-         swapping in dataset 2)
+  \item{\code{m1}:}{
+       Reciprocal model 1, calibrated with dataset 1 then swapping
+       in dataset 2.)
   }
-  \item{m2}{reciprocal model 2, calibrated with dataset 2 then
-         swapping in dataset 1
+  \item{\code{m2}:}{
+       Reciprocal model 2, calibrated with dataset 2 then swapping
+       in dataset 1.)
   }
-  \item{grp}{vector identifying group membership in dataset 1 or 2
+  \item{\code{grp}:}{
+       Vector identifying group membership in dataset 1 or 2.
   }
-  \item{sumtab}{data.frame summary table, with elements:
+  \item{\code{sumtab}:}{
+       \code{data.frame} summary table, with elements:
 \describe{
-  \item{d1_rP, d2_rP}{\emph{partial} intermodel fit for group 1,
-  group 2 data (i.e., how well each dataset fits the opposing
-  calibration model)
+  \item{d1_rP, d2_rP}{
+       \emph{Partial} intermodel fit for group 1, group 2 data
+       (i.e., how well each dataset fits the opposing calibration
+       model).
   }
-  \item{rP_external}{\emph{complete} intermodel fit (degree of
-  overall external exchangebility among the two datasets, measured
-  as Procrustean agreement of the two reciprocal models)
+  \item{rP_external}{
+       \emph{Complete} intermodel fit (degree of overall external
+       exchangebility among the two datasets, measured as
+       Procrustean agreement of the two reciprocal models).
   }
-  \item{stress1, stress2}{respective stress of model 1, model 2
+  \item{stress1, stress2}{
+       Respective stress of models 1,2.
   }
-  \item{varexp1, varexp2}{respective variance explained of model 1,
-  model 2
+  \item{varexp1, varexp2}{
+       Respective variance explained of models 1,2.
   }
   }
   }
@@ -111,7 +123,7 @@ Kruskal, J. B. 1964. Multidimensional scaling by optimizing
   1-27.
 }
 \seealso{
-\code{\link{boot_nmds}} for bootstrap NMDS, and
+\code{\link{resamp_nmds}} for resampled NMDS, and
      \code{\link{nearestspecies}} to force same number of rows
-     among candidate datasets
+     among candidate datasets.
 }
