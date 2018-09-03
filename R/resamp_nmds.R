@@ -221,8 +221,7 @@
 `dissim` <- function(...){
      `f` <- function(x, method, zeroadj, step, ...){
           x    <- as.matrix(x)
-          zero <- any(rowSums(x, na.rm=TRUE) == 0)
-          if (zero && zeroadj && method=='bray') {
+          if (zeroadj && method=='bray') {
                val <- min(x[x != 0], na.rm=TRUE)*0.5
                x   <- cbind(x, rep(val, nrow(x)))
           }

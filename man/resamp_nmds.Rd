@@ -6,8 +6,8 @@
 \alias{plot.resamp_nmds}
 \title{Resampled NMDS}
 \usage{
-resamp_nmds(spe, method = "bray", zeroadj = TRUE, step = TRUE, k = 2,
-  BS = NULL, B = 9, ...)
+resamp_nmds(spe, method = "bray", zeroadj = TRUE, step = TRUE,
+  k = 2, BS = NULL, B = 9, ...)
 
 \method{summary}{resamp_nmds}(object, ...)
 
@@ -122,3 +122,4 @@ Kruskal, J. B. 1964. Multidimensional scaling by optimizing
 \code{\link{recip_nmds}} for reciprocal NMDS, and
     \code{\link[vegan]{metaMDS}} for the core NMDS algorithm
 }
+\concept{resampled NMDS functions}

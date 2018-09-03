@@ -8,12 +8,13 @@
 \alias{plot_axismatch}
 \title{Reciprocal NMDS}
 \usage{
-recip_nmds(tw, method = "bray", zeroadj = TRUE, step = TRUE, k = 2, ...)
+recip_nmds(tw, method = "bray", zeroadj = TRUE, step = TRUE, k = 2,
+  ...)
 
 \method{summary}{recip_nmds}(object, ...)
 
-\method{plot}{recip_nmds}(x, type = "points", leg = FALSE, noaxes = TRUE,
-  ...)
+\method{plot}{recip_nmds}(x, type = "points", leg = FALSE,
+  noaxes = TRUE, ...)
 
 plot_marg_grp(object, ...)
 
@@ -127,3 +128,4 @@ Kruskal, J. B. 1964. Multidimensional scaling by optimizing
      \code{\link{nearestspecies}} to force same number of rows
      among candidate datasets.
 }
+\concept{reciprocal NMDS functions}
